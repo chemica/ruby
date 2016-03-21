@@ -2,7 +2,7 @@
 
 This is the Fullsix Ruby Style Guide.
 
-It was <strike>inspired by</strike> mainly plagiarised from the [AirBNB guide][airbnb-ruby], which itself was inspired by[Github's guide][github-ruby] and [Bozhidar Batsov's guide][bbatsov-ruby].
+It was <strike>inspired by</strike> mainly plagiarised from the [AirBNB guide][airbnb-ruby], which itself was inspired by [Github's guide][github-ruby] and [Bozhidar Batsov's guide][bbatsov-ruby].
 
 ## Table of Contents
   1. [Whitespace](#whitespace)
