@@ -72,7 +72,10 @@ Airbnb also maintains a [JavaScript Style Guide][airbnb-javascript].
     ```
 
 * <a name="align-function-params"></a>Align function parameters either all on
-    the same line or one per line.<sup>[[link](#align-function-params)]</sup>
+    the same line or one per line. (Bear in mind that this many function 
+    parameters is considered a code smell. Consider using optional parameters,
+    an options hash, or smaller functions with more discrete functionality.)
+<sup>[[link](#align-function-params)]</sup>
 
     ```ruby
     # bad
@@ -269,7 +272,9 @@ Airbnb also maintains a [JavaScript Style Guide][airbnb-javascript].
     ```
 
 * <a name="method-def-empty-lines"></a>Use a single empty line to break between
-    statements to break up methods into logical paragraphs internally.
+    statements to break up methods into logical paragraphs internally. (Consider
+    creating a new method if your method spans more than five lines or has more
+    than one purpose.)
     <sup>[[link](#method-def-empty-lines)]</sup>
 
     ```ruby
@@ -293,7 +298,7 @@ Airbnb also maintains a [JavaScript Style Guide][airbnb-javascript].
 ## Line Length
 
 * Keep each line of code to a readable length. Unless
-  you have a reason to, keep lines to fewer than 100 characters.
+  you have a reason to, keep lines to fewer than 120 characters.
   ([rationale](./rationales.md#line-length))<sup>
   [[link](#line-length)]</sup>
 
@@ -303,7 +308,10 @@ Airbnb also maintains a [JavaScript Style Guide][airbnb-javascript].
 > readable. The following rules describe what you should comment and where. But
 > remember: while comments are very important, the best code is
 > self-documenting. Giving sensible names to types and variables is much better
-> than using obscure names that you must then explain through comments.
+> than using obscure names that you must then explain through comments. Use 
+> small methods with a single, clear purpose. Consider encapsulating complex
+> conditional boolean logic into clearly named methods. Encapsulate complexity 
+> behind a simple interface.
 
 > When writing your comments, write for your audience: the next contributor who
 > will need to understand your code. Be generous — the next one may be you!
@@ -516,7 +524,8 @@ Thus when you create a TODO, it is almost always your name that is given.
      ```
 
 * <a name="no-default-args"></a>Do not use default arguments. Use an options
-    hash instead.<sup>[[link](#no-default-args)]</sup>
+    hash instead, or for recent versions of Ruby, optional parameters.
+    <sup>[[link](#no-default-args)]</sup>
 
     ```ruby
     # bad
@@ -527,10 +536,17 @@ Thus when you create a TODO, it is almost always your name that is given.
     # good
     def obliterate(things, options = {})
       default_options = {
-        :gently => true, # obliterate with soft-delete
-        :except => [], # skip obliterating these things
-        :at => Time.now, # don't obliterate them until later
+        gently: true, # obliterate with soft-delete
+        except: [], # skip obliterating these things
+        at: Time.now, # don't obliterate them until later
       }
+      options.reverse_merge!(default_options)
+
+      ...
+    end
+    
+    # good
+    def obliterate(things, gently: true, except: [], at: Time.now)
       options.reverse_merge!(default_options)
 
       ...
@@ -554,18 +570,7 @@ Thus when you create a TODO, it is almost always your name that is given.
 
 ### Method calls
 
-**Use parentheses** for a method call:
-
-* <a name="returns-val-parens"></a>If the method returns a value.
-    <sup>[[link](#returns-val-parens)]</sup>
-
-    ```ruby
-    # bad
-    @current_user = User.find_by_id 1964192
-
-    # good
-    @current_user = User.find_by_id(1964192)
-    ```
+Use parentheses for a method call only if needed to prevent ambiguity:
 
 * <a name="first-arg-parens"></a>If the first argument to the method uses
     parentheses.<sup>[[link](#first-arg-parens)]</sup>
@@ -578,6 +583,17 @@ Thus when you create a TODO, it is almost always your name that is given.
     put!((x + y) % len, value)
     ```
 
+* <a name="first-arg-parens"></a>If the method call is part of an
+     argument list.<sup>[[link](#first-arg-parens)]</sup>
+
+    ```ruby
+    # bad
+    do_something get_result value, i
+    
+    # good
+    do_something(get_result(value, i))
+    ```
+    
 * <a name="space-method-call"></a>Never put a space between a method name and
     the opening parenthesis.<sup>[[link](#space-method-call)]</sup>
 
@@ -600,17 +616,17 @@ Thus when you create a TODO, it is almost always your name that is given.
     nil?
     ```
 
-* <a name="no-return-parens"></a>If the method doesn't return a value (or we
-    don't care about the return), parentheses are optional. (Especially if the
-    arguments overflow to multiple lines, parentheses may add readability.)
+* <a name="no-return-parens"></a>If the method can be called without
+     ambiguity, parentheses are optional. (Especially if the arguments 
+     overflow to multiple lines, parentheses may add readability.)
     <sup>[[link](#no-return-parens)]</sup>
 
     ```ruby
     # okay
-    render(:partial => 'foo')
+    render(partial: 'foo')
 
     # okay
-    render :partial => 'foo'
+    render partial: 'foo'
     ```
 
 In either case:
@@ -621,10 +637,10 @@ In either case:
 
     ```ruby
     # bad
-    get '/v1/reservations', { :id => 54875 }
+    get '/v1/reservations', { id: 54875 }
 
     # good
-    get '/v1/reservations', :id => 54875
+    get '/v1/reservations', id: 54875
     ```
 
 ## Conditional Expressions
@@ -1279,6 +1295,7 @@ In either case:
     ```
 
 * <a name="symbol-keys"></a>Use symbols instead of strings as hash keys.
+    Favour the new JSON style symbol keys over hash rockets:
     <sup>[[link](#symbol-keys)]</sup>
 
     ```ruby
@@ -1286,7 +1303,7 @@ In either case:
     hash = { 'one' => 1, 'two' => 2, 'three' => 3 }
 
     # good
-    hash = { :one => 1, :two => 2, :three => 3 }
+    hash = { one: 1, two: 2, three: 3 }
     ```
 
 * <a name="symbol-literals"></a>Relatedly, use plain symbols instead of string
@@ -1322,12 +1339,12 @@ In either case:
 
     ```ruby
     hash = {
-      :protocol => 'https',
-      :only_path => false,
-      :controller => :users,
-      :action => :set_password,
-      :redirect => @redirect_url,
-      :secret => @secret,
+      protocol: 'https',
+      only_path: false,
+      controller: :users,
+      action: :set_password,
+      redirect: @redirect_url,
+      secret: @secret,
     }
     ```
 
@@ -1531,18 +1548,18 @@ In either case:
 
     ```ruby
     # bad
-    render :text => 'Howdy' and return
+    render text: 'Howdy' and return
 
     # good
-    render :text => 'Howdy'
+    render text: 'Howdy'
     return
 
     # still bad
-    render :text => 'Howdy' and return if foo.present?
+    render text: 'Howdy' and return if foo.present?
 
     # good
     if foo.present?
-      render :text => 'Howdy'
+      render text: 'Howdy'
       return
     end
     ```
@@ -1555,10 +1572,10 @@ In either case:
 
     ```ruby
     # bad
-    scope :foo, where(:bar => 1)
+    scope :foo, where(bar: 1)
 
     # good
-    scope :foo, -> { where(:bar => 1) }
+    scope :foo, -> { where(bar: 1) }
     ```
 
 ### Controllers
