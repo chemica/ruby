@@ -35,6 +35,8 @@ Airbnb also maintains a [JavaScript Style Guide][airbnb-javascript].
   1. [Percent Literals](#percent-literals)
   1. [Rails](#rails)
     1. [Scopes](#scopes)
+    1. [Controllers](#controllers)
+    1. [Models](#models)
   1. [Be Consistent](#be-consistent)
 
 ## Whitespace
@@ -1558,6 +1560,21 @@ In either case:
     # good
     scope :foo, -> { where(:bar => 1) }
     ```
+
+### Controllers
+* <a name="controllers"></a>Try to avoid putting business logic in controllers.
+     If you find controller code becoming complex, consider placing code inside
+     models or services.
+    <sup>[[link](#controllers)]</sup>
+
+### Models
+* <a name="models"></a>Code that involves the use of more than one model should
+     be placed in service objects. Consider using a pub/sub (observer) pattern
+     instead of complex model callbacks. By placing 'publish' code in the 
+     controller context, infinite loops can be avoided. 'Thin controllers and 
+     fat models' is a fallacy: all objects should be 'thin', with a single
+     responsibility.
+    <sup>[[link](#models)]</sup>
 
 ## Be Consistent
 
